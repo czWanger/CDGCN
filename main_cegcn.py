@@ -9,11 +9,12 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 from tools.earlystopping import EarlyStopping
-from torch_geometric.data import DataLoader
+from torch_geometric.loader import DataLoader
+# from torch_geometric.data import DataLoader
 from process.rand5fold import *
 from tools.evaluate import *
 from model.CeGCN import CeGCN
-from visdom import Visdom
+# from visdom import Visdom
 
 """
 The Bi-GCN is referred from the original implementation from the paper authors 
@@ -44,10 +45,12 @@ def train_model(treeDic, x_test, x_train, args, iter):
     train_accs = []
     val_accs = []
     early_stopping = EarlyStopping(patience=args.patience, verbose=True)
-    window_loss = Visdom(env=args.exp_name)
-    window_acc = Visdom(env=args.exp_name)
-    window_loss.line([[0., 0.]], [0.], win='CeGCN_loss', opts=dict(title='CeGCN_loss', legend=['train_loss', 'test_loss']))
-    window_acc.line([[0., 0.]], [0.], win='CeGCN_acc', opts=dict(title='CeGCN_acc', legend=['train_acc', 'test_acc']))
+
+    #这里注释掉了visdom实时监控训练准确率的功能
+    # window_loss = Visdom(env=args.exp_name)
+    # window_acc = Visdom(env=args.exp_name)
+    # window_loss.line([[0., 0.]], [0.], win='CeGCN_loss', opts=dict(title='CeGCN_loss', legend=['train_loss', 'test_loss']))
+    # window_acc.line([[0., 0.]], [0.], win='CeGCN_acc', opts=dict(title='CeGCN_acc', legend=['train_acc', 'test_acc']))
     for epoch in range(args.n_epochs):
         traindata_list, testdata_list = loadData(args.datasetname, treeDic, x_train, x_test, args.TDdroprate,
                                                  args.BUdroprate, args.k)
@@ -108,8 +111,8 @@ def train_model(treeDic, x_test, x_train, args, iter):
         val_losses.append(np.mean(temp_val_losses))
         val_accs.append(np.mean(temp_val_accs))
 
-        window_loss.line([[np.mean(avg_loss), np.mean(temp_val_losses)]], [epoch], win='CeGCN_loss', update='append')
-        window_acc.line([[np.mean(avg_acc), np.mean(temp_val_accs)]], [epoch], win='CeGCN_acc', update='append')
+        # window_loss.line([[np.mean(avg_loss), np.mean(temp_val_losses)]], [epoch], win='CeGCN_loss', update='append')
+        # window_acc.line([[np.mean(avg_acc), np.mean(temp_val_accs)]], [epoch], win='CeGCN_acc', update='append')
 
         print("Epoch {:05d} | Val_Loss {:.4f}| Val_Accuracy {:.4f}".format(epoch, np.mean(temp_val_losses),
                                                                            np.mean(temp_val_accs)))
